@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.jcraft.jsch.Session;
@@ -57,6 +59,7 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.util.FileUtils;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cloud.config.environment.Environment;
 import org.springframework.cloud.config.server.support.GitCredentialsProviderFactory;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.UrlResource;
@@ -141,6 +144,12 @@ public class JGitEnvironmentRepository extends AbstractScmEnvironmentRepository
 	 */
 	private boolean skipSslValidation;
 
+	/**
+	 * Label overrides
+	 */
+	private Map<String, String> labelOverrides = new HashMap<>();
+
+
 	public JGitEnvironmentRepository(ConfigurableEnvironment environment, JGitEnvironmentProperties properties) {
 		super(environment, properties);
 		this.cloneOnStart = properties.isCloneOnStart();
@@ -150,6 +159,7 @@ public class JGitEnvironmentRepository extends AbstractScmEnvironmentRepository
 		this.deleteUntrackedBranches = properties.isDeleteUntrackedBranches();
 		this.refreshRate = properties.getRefreshRate();
 		this.skipSslValidation = properties.isSkipSslValidation();
+		this.labelOverrides = properties.getLabelOverrides();
 	}
 
 	public boolean isCloneOnStart() {
@@ -250,6 +260,12 @@ public class JGitEnvironmentRepository extends AbstractScmEnvironmentRepository
 		if (this.cloneOnStart) {
 			initClonedRepository();
 		}
+	}
+
+	@Override
+	public synchronized Environment findOne(String application, String profile, String label) {
+		String labelOverride = this.labelOverrides.get(application);
+		return super.findOne(application, profile, labelOverride == null ? label : labelOverride);
 	}
 
 	/**

@@ -95,6 +95,11 @@ public class JGitEnvironmentProperties extends AbstractScmAccessorProperties
      */
     private Map<ProxyHostProperties.ProxyForScheme, ProxyHostProperties> proxy = new HashMap<>();
 
+    /**
+     * Label overrides
+     */
+    private Map<String, String> labelOverrides = new HashMap<>();
+
     public JGitEnvironmentProperties() {
         super();
         setDefaultLabel(DEFAULT_LABEL);
@@ -215,5 +220,13 @@ public class JGitEnvironmentProperties extends AbstractScmAccessorProperties
 
     public void setProxy(Map<ProxyHostProperties.ProxyForScheme, ProxyHostProperties> proxy) {
         this.proxy = proxy;
+    }
+
+    public Map<String, String> getLabelOverrides() {
+        return labelOverrides;
+    }
+
+    public void setLabelOverrides(Map<String, String> labelOverrides) {
+        this.labelOverrides = labelOverrides;
     }
 }
